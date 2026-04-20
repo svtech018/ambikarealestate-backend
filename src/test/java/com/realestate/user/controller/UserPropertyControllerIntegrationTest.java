@@ -53,7 +53,7 @@ class UserPropertyControllerIntegrationTest {
         testProperty1 = Property.builder()
                 .title("Beautiful Villa in Mumbai")
                 .description("Luxury villa with modern amenities and sea view")
-                .propertyType(PropertyType.RESIDENTIAL)
+                .propertyType(PropertyType.APARTMENTS_FLATS)
                 .listingType(ListingType.SALE)
                 .price(new BigDecimal("5000000"))
                 .address("123 Marine Drive")
@@ -74,7 +74,7 @@ class UserPropertyControllerIntegrationTest {
         testProperty2 = Property.builder()
                 .title("Modern Apartment in Delhi")
                 .description("Spacious apartment in prime location with metro connectivity")
-                .propertyType(PropertyType.INDUSTRIAL)
+                .propertyType(PropertyType.LAND_PLOTS)
                 .listingType(ListingType.RENT)
                 .price(new BigDecimal("50000"))
                 .address("456 Connaught Place")
@@ -93,9 +93,9 @@ class UserPropertyControllerIntegrationTest {
         testProperty2 = propertyRepository.save(testProperty2);
 
         testProperty3 = Property.builder()
-                .title("Commercial Plot in Bangalore")
-                .description("Prime commercial plot for business development")
-                .propertyType(PropertyType.COMMERCIAL)
+                .title("COMMERCIAL_SHOPS Plot in Bangalore")
+                .description("Prime COMMERCIAL_SHOPS plot for business development")
+                .propertyType(PropertyType.COMMERCIAL_SHOPS)
                 .listingType(ListingType.SALE)
                 .price(new BigDecimal("10000000"))
                 .address("789 MG Road")
@@ -160,13 +160,13 @@ class UserPropertyControllerIntegrationTest {
     @Test
     void testGetAllPropertiesWithPropertyTypeFilter() throws Exception {
         mockMvc.perform(get("/api/properties")
-                .param("type", "INDUSTRIAL")
+                .param("type", "LAND_PLOTS")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
-                .andExpect(jsonPath("$.data.content[0].propertyType").value("INDUSTRIAL"))
+                .andExpect(jsonPath("$.data.content[0].propertyType").value("LAND_PLOTS"))
                 .andExpect(jsonPath("$.data.content[0].title").value("Modern Apartment in Delhi"));
     }
 
@@ -189,7 +189,7 @@ class UserPropertyControllerIntegrationTest {
                 .param("priceMin", "40000")
                 .param("priceMax", "60000")
                 .param("city", "Delhi")
-                .param("type", "INDUSTRIAL")
+                .param("type", "LAND_PLOTS")
                 .param("listingType", "RENT")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -197,7 +197,7 @@ class UserPropertyControllerIntegrationTest {
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(1)))
                 .andExpect(jsonPath("$.data.content[0].city").value("Delhi"))
-                .andExpect(jsonPath("$.data.content[0].propertyType").value("INDUSTRIAL"))
+                .andExpect(jsonPath("$.data.content[0].propertyType").value("LAND_PLOTS"))
                 .andExpect(jsonPath("$.data.content[0].listingType").value("RENT"))
                 .andExpect(jsonPath("$.data.content[0].price").value(50000));
     }
@@ -240,7 +240,7 @@ class UserPropertyControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.content").isArray())
-                .andExpect(jsonPath("$.data.content", hasSize(2))) // Villa and commercial
+                .andExpect(jsonPath("$.data.content", hasSize(2))) // Villa and COMMERCIAL_SHOPS
                 .andExpect(jsonPath("$.data.content[*].featured", everyItem(is(true))));
     }
 
@@ -268,7 +268,7 @@ class UserPropertyControllerIntegrationTest {
                 .andExpect(jsonPath("$.data.content", hasSize(3)))
                 .andExpect(jsonPath("$.data.content[0].price").value(50000)) // Apartment (lowest)
                 .andExpect(jsonPath("$.data.content[1].price").value(5000000)) // Villa (middle)
-                .andExpect(jsonPath("$.data.content[2].price").value(10000000)); // Commercial (highest)
+                .andExpect(jsonPath("$.data.content[2].price").value(10000000)); // COMMERCIAL_SHOPS (highest)
     }
 
     @Test
@@ -281,7 +281,7 @@ class UserPropertyControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(3)))
-                .andExpect(jsonPath("$.data.content[0].price").value(10000000)) // Commercial (highest)
+                .andExpect(jsonPath("$.data.content[0].price").value(10000000)) // COMMERCIAL_SHOPS (highest)
                 .andExpect(jsonPath("$.data.content[1].price").value(5000000)) // Villa (middle)
                 .andExpect(jsonPath("$.data.content[2].price").value(50000)); // Apartment (lowest)
     }
@@ -297,7 +297,7 @@ class UserPropertyControllerIntegrationTest {
                 .andExpect(jsonPath("$.data.content").isArray())
                 .andExpect(jsonPath("$.data.content", hasSize(3)))
                 // Most recent first (testProperty3 saved last)
-                .andExpect(jsonPath("$.data.content[0].title").value("Commercial Plot in Bangalore"));
+                .andExpect(jsonPath("$.data.content[0].title").value("COMMERCIAL_SHOPS Plot in Bangalore"));
     }
 
     @Test
@@ -367,7 +367,7 @@ class UserPropertyControllerIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.message")
-                        .value("Invalid property type. Valid values are: RESIDENTIAL, COMMERCIAL, INDUSTRIAL, LAND"));
+                        .value("Invalid property type. Valid values are: APARTMENTS_FLATS, COMMERCIAL_SHOPS, LAND_PLOTS, LAND"));
     }
 
     @Test
