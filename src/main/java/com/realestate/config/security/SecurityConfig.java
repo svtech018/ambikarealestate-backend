@@ -112,7 +112,8 @@ public class SecurityConfig {
                 "http://localhost:3001",
                 "http://127.0.0.1:3000",
                 "https://ambikarealestate.com",           // Your custom domain
-                "https://ambitaestate-frontend-3sem24iub-svtechs-projects-0d07ed0b.vercel.app"    // Your specific Vercel URL
+                "https://ambitaestate-frontend-3sem24iub-svtechs-projects-0d07ed0b.vercel.app"  ,
+                "https://ambitaestate-frontend.vercel.app"  ,// Your specific Vercel URL
         ));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
