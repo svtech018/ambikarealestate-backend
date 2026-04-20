@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <!-- Application Name -->
+        <Property name="APP_NAME">real-estate-app</Property>
+        
+        <!-- Log Directory -->
+        <Property name="LOG_DIR">${sys:user.home}/logs/${APP_NAME}</Property>
+        
+        <!-- Log Pattern -->
+        <Property name="LOG_PATTERN">
+            %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n
+        </Property>
+        
+        <!-- Console Pattern with Colors -->
+        <Property name="CONSOLE_PATTERN">
+            %d{HH:mm:ss.SSS} %highlight{%-5level} [%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable
+        </Property>
+        
+        <!-- File Pattern -->
+        <Property name="FILE_PATTERN">
+            %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level [%X{correlationId}] %logger{36} - %msg%n
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${CONSOLE_PATTERN}" />
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY" />
+        </Console>
+
+        <!-- Application Log File -->
+        <RollingFile name="ApplicationFile" fileName="${LOG_DIR}/application.log"
+                     filePattern="${LOG_DIR}/application.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="100MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <!-- Error Log File -->
+        <RollingFile name="ErrorFile" fileName="${LOG_DIR}/error.log"
+                     filePattern="${LOG_DIR}/error.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}" />
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <!-- Security Log File -->
+        <RollingFile name="SecurityFile" fileName="${LOG_DIR}/security.log"
+                     filePattern="${LOG_DIR}/security.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <!-- Database Log File -->
+        <RollingFile name="DatabaseFile" fileName="${LOG_DIR}/database.log"
+                     filePattern="${LOG_DIR}/database.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="7" />
+        </RollingFile>
+
+        <!-- Performance Log File -->
+        <RollingFile name="PerformanceFile" fileName="${LOG_DIR}/performance.log"
+                     filePattern="${LOG_DIR}/performance.%d{yyyy-MM-dd}.%i.log.gz">
+            <PatternLayout pattern="${FILE_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="7" />
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <!-- Application Specific Loggers -->
+        <Logger name="com.realestate" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="ApplicationFile" />
+            <AppenderRef ref="ErrorFile" />
+        </Logger>
+
+        <!-- Admin Module Logger -->
+        <Logger name="com.realestate.admin" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="ApplicationFile" />
+        </Logger>
+
+        <!-- User Module Logger -->
+        <Logger name="com.realestate.user" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="ApplicationFile" />
+        </Logger>
+
+        <!-- Security Logger -->
+        <Logger name="com.realestate.config.security" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="SecurityFile" />
+        </Logger>
+
+        <Logger name="org.springframework.security" level="DEBUG" additivity="false">
+            <AppenderRef ref="SecurityFile" />
+        </Logger>
+
+        <!-- Database Loggers -->
+        <Logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <AppenderRef ref="DatabaseFile" />
+        </Logger>
+
+        <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+            <AppenderRef ref="DatabaseFile" />
+        </Logger>
+
+        <Logger name="org.springframework.jdbc" level="DEBUG" additivity="false">
+            <AppenderRef ref="DatabaseFile" />
+        </Logger>
+
+        <!-- Performance Loggers -->
+        <Logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG" additivity="false">
+            <AppenderRef ref="PerformanceFile" />
+        </Logger>
+
+        <!-- Third Party Loggers -->
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="ApplicationFile" />
+        </Logger>
+
+        <Logger name="org.springframework.boot" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
+
+        <Logger name="org.springframework.web" level="INFO" additivity="false">
+            <AppenderRef ref="ApplicationFile" />
+        </Logger>
+
+        <!-- Reduce noise from common libraries -->
+        <Logger name="org.apache.catalina" level="WARN" />
+        <Logger name="org.apache.coyote" level="WARN" />
+        <Logger name="org.apache.tomcat" level="WARN" />
+        <Logger name="org.eclipse.jetty" level="WARN" />
+        <Logger name="com.zaxxer.hikari" level="WARN" />
+        <Logger name="org.hibernate.validator" level="WARN" />
+        <Logger name="org.springframework.boot.actuate" level="WARN" />
+
+        <!-- Root Logger -->
+        <Root level="INFO">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="ApplicationFile" />
+            <AppenderRef ref="ErrorFile" />
+        </Root>
+    </Loggers>
+</Configuration>
