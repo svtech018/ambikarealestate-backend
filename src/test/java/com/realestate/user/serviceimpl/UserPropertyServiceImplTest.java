@@ -62,7 +62,7 @@ class UserPropertyServiceImplTest {
                 testProperty1 = Property.builder()
                                 .title("Beautiful Villa in Mumbai")
                                 .description("Luxury villa with modern amenities")
-                                .propertyType(PropertyType.RESIDENTIAL)
+                                .propertyType(PropertyType.APARTMENTS_FLATS)
                                 .listingType(ListingType.SALE)
                                 .price(new BigDecimal("5000000"))
                                 .address("123 Marine Drive")
@@ -83,7 +83,7 @@ class UserPropertyServiceImplTest {
                 testProperty2 = Property.builder()
                                 .title("Modern Apartment in Delhi")
                                 .description("Spacious apartment in prime location")
-                                .propertyType(PropertyType.RESIDENTIAL)
+                                .propertyType(PropertyType.APARTMENTS_FLATS)
                                 .listingType(ListingType.RENT)
                                 .price(new BigDecimal("50000"))
                                 .address("456 Connaught Place")
@@ -102,9 +102,9 @@ class UserPropertyServiceImplTest {
                 testProperty2.setId(2L);
 
                 testProperty3 = Property.builder()
-                                .title("Commercial Plot in Bangalore")
-                                .description("Prime commercial plot for business")
-                                .propertyType(PropertyType.COMMERCIAL)
+                                .title("COMMERCIAL_SHOPS Plot in Bangalore")
+                                .description("Prime COMMERCIAL_SHOPS plot for business")
+                                .propertyType(PropertyType.COMMERCIAL_SHOPS)
                                 .listingType(ListingType.SALE)
                                 .price(new BigDecimal("10000000"))
                                 .address("789 MG Road")
@@ -223,10 +223,10 @@ class UserPropertyServiceImplTest {
         void testSearchPropertiesWithPropertyTypeFilter() {
                 // Arrange
                 PropertySearchCriteria criteria = PropertySearchCriteria.builder()
-                                .propertyType(PropertyType.RESIDENTIAL)
+                                .propertyType(PropertyType.APARTMENTS_FLATS)
                                 .build();
                 Pageable pageable = PageRequest.of(0, 10);
-                List<Property> properties = Arrays.asList(testProperty2); // Only residential
+                List<Property> properties = Arrays.asList(testProperty2); // Only APARTMENTS_FLATS
                 Page<Property> propertyPage = new PageImpl<>(properties, pageable, properties.size());
 
                 when(propertyRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -238,7 +238,7 @@ class UserPropertyServiceImplTest {
                 // Assert
                 assertNotNull(result);
                 assertEquals(1, result.getContent().size());
-                assertEquals(PropertyType.RESIDENTIAL, result.getContent().get(0).getPropertyType());
+                assertEquals(PropertyType.APARTMENTS_FLATS, result.getContent().get(0).getPropertyType());
         }
 
         @Test
@@ -248,11 +248,11 @@ class UserPropertyServiceImplTest {
                                 .priceMin(new BigDecimal("40000"))
                                 .priceMax(new BigDecimal("60000"))
                                 .city("Delhi")
-                                .propertyType(PropertyType.RESIDENTIAL)
+                                .propertyType(PropertyType.APARTMENTS_FLATS)
                                 .listingType(ListingType.RENT)
                                 .build();
                 Pageable pageable = PageRequest.of(0, 10);
-                List<Property> properties = Arrays.asList(testProperty2); // Only Delhi residential for rent
+                List<Property> properties = Arrays.asList(testProperty2); // Only Delhi APARTMENTS_FLATS for rent
                 Page<Property> propertyPage = new PageImpl<>(properties, pageable, properties.size());
 
                 when(propertyRepository.findAll(any(Specification.class), any(Pageable.class)))
@@ -266,7 +266,7 @@ class UserPropertyServiceImplTest {
                 assertEquals(1, result.getContent().size());
                 UserPropertyDTO property = result.getContent().get(0);
                 assertEquals("Delhi", property.getCity());
-                assertEquals(PropertyType.RESIDENTIAL, property.getPropertyType());
+                assertEquals(PropertyType.APARTMENTS_FLATS, property.getPropertyType());
                 assertEquals(ListingType.RENT, property.getListingType());
                 assertTrue(property.getPrice().compareTo(new BigDecimal("40000")) >= 0);
                 assertTrue(property.getPrice().compareTo(new BigDecimal("60000")) <= 0);
@@ -393,7 +393,7 @@ class UserPropertyServiceImplTest {
                 // Assert
                 assertNotNull(result);
                 assertEquals(3, result.getContent().size());
-                // Verify sorting order (apartment < villa < commercial)
+                // Verify sorting order (apartment < villa < COMMERCIAL_SHOPS)
                 assertTrue(result.getContent().get(0).getPrice().compareTo(result.getContent().get(1).getPrice()) <= 0);
                 assertTrue(result.getContent().get(1).getPrice().compareTo(result.getContent().get(2).getPrice()) <= 0);
         }
