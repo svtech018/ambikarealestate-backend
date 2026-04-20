@@ -13,6 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.VarbinaryJdbcType;
 
 @Entity
 @Table(name = "property_images")
@@ -28,6 +30,7 @@ public class PropertyImage extends BaseEntity {
     private Property property;
 
     @Lob
+    @JdbcType(VarbinaryJdbcType.class)
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "image_data", nullable = false)
     private byte[] imageData;
