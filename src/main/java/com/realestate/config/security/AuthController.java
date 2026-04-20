@@ -2,6 +2,7 @@ package com.realestate.config.security;
 
 import com.realestate.dto.ApiResponse;
 import com.realestate.dto.LoginRequest;
+import com.realestate.util.CookieUtil;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
 
@@ -26,20 +28,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Map<String, String>>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> login(@RequestBody LoginRequest request, 
+                                                                   HttpServletRequest httpRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         String token = jwtTokenProvider.generateToken(authentication);
-
-        long maxAgeSeconds = jwtTokenProvider.getJwtExpiration() / 1000L;
-        ResponseCookie cookie = ResponseCookie.from("ADMIN_TOKEN", token)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(maxAgeSeconds)
-                .sameSite("Lax")
-                .build();
+        
+        // Determine if production or development based on request host
+        String host = httpRequest.getServerName();
+        ResponseCookie cookie = CookieUtil.isProduction(host) 
+                ? CookieUtil.createJwtCookie(token) 
+                : CookieUtil.createJwtCookieDev(token);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -59,15 +59,13 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Map<String, String>>> logout() {
-        // Clear the cookie by setting maxAge=0
-        ResponseCookie cookie = ResponseCookie.from("ADMIN_TOKEN", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
+    public ResponseEntity<ApiResponse<Map<String, String>>> logout(HttpServletRequest httpRequest) {
+        // Determine if production or development based on request host
+        String host = httpRequest.getServerName();
+        ResponseCookie cookie = CookieUtil.isProduction(host)
+                ? CookieUtil.deleteJwtCookie()
+                : CookieUtil.deleteJwtCookieDev();
+        
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok().headers(headers).body(new ApiResponse<>(true, "Logged out", Map.of("status", "ok")));

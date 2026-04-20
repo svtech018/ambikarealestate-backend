@@ -106,19 +106,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // UPDATED: Added your production Vercel and Custom Domain links
+        // Production domains: Main domain + www variant
+        // Development: Vite (5173) and React dev server (3000)
         configuration.setAllowedOrigins(List.of(
+                // Production
+                "https://ambikarealestate.com",
+                "https://www.ambikarealestate.com",
+                // Development
                 "http://localhost:3000",
-                "http://localhost:3001",
+                "http://localhost:5173",
                 "http://127.0.0.1:3000",
-                "https://ambikarealestate.com", // Your custom domain
-                "https://ambitaestate-frontend-3sem24iub-svtechs-projects-0d07ed0b.vercel.app",
-                "https://ambitaestate-frontend.vercel.app" // Your specific Vercel URL
+                "http://127.0.0.1:5173"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration
-                .setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Admin-Token", "Accept", "Origin"));
+        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "X-Admin-Token", "Accept", "Origin"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

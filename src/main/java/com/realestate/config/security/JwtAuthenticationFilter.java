@@ -64,11 +64,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        // Fallback: check for cookie (httpOnly) named ADMIN_TOKEN or
-        // real-estate-admin-token
+        // Fallback: check for httpOnly cookie
+        // Supports both "jwt" (new standard) and legacy names
         if (request.getCookies() != null) {
             for (var c : request.getCookies()) {
-                if ("ADMIN_TOKEN".equals(c.getName()) || "real-estate-admin-token".equals(c.getName())) {
+                if ("jwt".equals(c.getName()) || "ADMIN_TOKEN".equals(c.getName()) || "real-estate-admin-token".equals(c.getName())) {
                     String v = c.getValue();
                     if (StringUtils.hasText(v))
                         return v;
