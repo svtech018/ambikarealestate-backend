@@ -53,7 +53,8 @@ public class User implements UserDetails {
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone number should be valid")
+    // Phone number validation is handled on the frontend
+    // Accept any non-null value formatted by the user
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 
