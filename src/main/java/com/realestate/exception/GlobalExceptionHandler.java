@@ -141,7 +141,7 @@ public class GlobalExceptionHandler {
      * @return error response with NOT_FOUND status
      */
     @ExceptionHandler(TransactionSystemException.class)
-    public ResponseEntity<ApiResponse<Object>> handleTransactionException(TransactionSystemException ex) {
+    public ResponseEntity<ApiResponse<?>> handleTransactionException(TransactionSystemException ex) {
         logger.error("Transaction error: {}", ex.getMessage(), ex);
 
         // Extract the underlying cause for better error message
@@ -172,7 +172,8 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle data integrity violation exceptions (constraint violations at DB level)
+     * Handle data integrity violation exceptions (constraint violations at DB
+     * level)
      * 
      * @param ex the DataIntegrityViolationException
      * @return error response with BAD_REQUEST status
@@ -183,7 +184,7 @@ public class GlobalExceptionHandler {
         logger.warn("Data integrity violation: {}", ex.getMessage());
 
         String message = "Invalid data provided. Please check your input and try again.";
-        
+
         // Provide more specific messages for common constraint violations
         if (ex.getMessage() != null) {
             if (ex.getMessage().contains("unique")) {
