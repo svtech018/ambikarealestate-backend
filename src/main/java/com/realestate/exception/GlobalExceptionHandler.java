@@ -135,10 +135,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle resource not found exceptions
+     * Handle transaction system exceptions with nested cause extraction
      * 
-     * @param ex the RuntimeException with "not found" message
-     * @return error response with NOT_FOUND status
+     * @param ex the TransactionSystemException
+     * @return error response with specific error details
      */
     @ExceptionHandler(TransactionSystemException.class)
     public ResponseEntity<ApiResponse<?>> handleTransactionException(TransactionSystemException ex) {
@@ -162,9 +162,26 @@ public class GlobalExceptionHandler {
             return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
 
-        // Check for database integrity violations
-        if (cause != null && cause.getMessage() != null) {
-            message = cause.getMessage();
+        // Check for database integrity violations in the cause chain
+        if (cause != null) {
+            String causeMsg = cause.getMessage() != null ? cause.getMessage() : cause.toString();
+
+            if (causeMsg.contains("unique") || causeMsg.contains("Unique")) {
+                message = "This record already exists. Please use unique values for username/email.";
+            } else if (causeMsg.contains("foreign key") || causeMsg.contains("FOREIGN KEY")) {
+                message = "Cannot complete operation due to related records. Please check your selections.";
+            } else if (causeMsg.contains("not null") || causeMsg.contains("NOT NULL")) {
+                message = "Required field is missing. Please fill in all required fields.";
+            } else if (causeMsg.contains("violates")) {
+                // PostgreSQL specific error messages
+                if (causeMsg.contains("unique")) {
+                    message = "This record already exists. Please use unique values for username/email.";
+                } else {
+                    message = causeMsg;
+                }
+            } else {
+                message = causeMsg;
+            }
         }
 
         ApiResponse<Object> errorResponse = new ApiResponse<>(false, message, null);
