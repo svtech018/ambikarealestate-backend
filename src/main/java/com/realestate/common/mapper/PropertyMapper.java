@@ -16,7 +16,18 @@ import java.util.stream.Collectors;
 public class PropertyMapper {
 
     private String buildImageUrl(PropertyImage image) {
-        return "/api/properties/images/" + image.getId();
+        // Generate absolute URL pointing to backend API
+        // Uses environment variable API_URL or falls back to production domain
+        String apiUrl = System.getenv("API_URL");
+        if (apiUrl == null || apiUrl.isBlank()) {
+            // Production default - adjust if using different domain
+            apiUrl = "https://api.ambikarealestate.com";
+        }
+        // Remove trailing slash if present
+        if (apiUrl.endsWith("/")) {
+            apiUrl = apiUrl.substring(0, apiUrl.length() - 1);
+        }
+        return apiUrl + "/api/properties/images/" + image.getId();
     }
 
     private List<String> mapImageUrls(Property property) {
