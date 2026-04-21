@@ -40,9 +40,9 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     @Override
     public AdminPropertyDTO createProperty(AdminPropertyDTO dto) {
         Property property = propertyMapper.toEntity(dto);
+        // Sync images before first save to avoid double-save issues
+        syncPropertyImages(property, dto.getImageUrls());
         Property saved = propertyRepository.save(property);
-        syncPropertyImages(saved, dto.getImageUrls());
-        saved = propertyRepository.save(saved);
         return propertyMapper.toAdminDTO(saved);
     }
 

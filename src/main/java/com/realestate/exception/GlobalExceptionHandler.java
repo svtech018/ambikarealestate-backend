@@ -3,8 +3,10 @@ package com.realestate.exception;
 import com.realestate.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -129,6 +131,71 @@ public class GlobalExceptionHandler {
         logger.warn("Illegal argument error: {}", ex.getMessage());
 
         ApiResponse<Object> errorResponse = new ApiResponse<>(false, ex.getMessage(), null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle resource not found exceptions
+     * 
+     * @param ex the RuntimeException with "not found" message
+     * @return error response with NOT_FOUND status
+     */
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTransactionException(TransactionSystemException ex) {
+        logger.error("Transaction error: {}", ex.getMessage(), ex);
+
+        // Extract the underlying cause for better error message
+        Throwable cause = ex.getCause();
+        String message = "Could not complete the database operation";
+
+        if (cause instanceof ConstraintViolationException) {
+            ConstraintViolationException cve = (ConstraintViolationException) cause;
+            Map<String, String> errors = cve.getConstraintViolations()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            violation -> violation.getPropertyPath().toString(),
+                            ConstraintViolation::getMessage));
+            ApiResponse<Map<String, String>> errorResponse = new ApiResponse<>(
+                    false,
+                    "Validation constraints violated during database operation",
+                    errors);
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        // Check for database integrity violations
+        if (cause != null && cause.getMessage() != null) {
+            message = cause.getMessage();
+        }
+
+        ApiResponse<Object> errorResponse = new ApiResponse<>(false, message, null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle data integrity violation exceptions (constraint violations at DB level)
+     * 
+     * @param ex the DataIntegrityViolationException
+     * @return error response with BAD_REQUEST status
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex) {
+        logger.warn("Data integrity violation: {}", ex.getMessage());
+
+        String message = "Invalid data provided. Please check your input and try again.";
+        
+        // Provide more specific messages for common constraint violations
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().contains("unique")) {
+                message = "This record already exists. Please use a unique value.";
+            } else if (ex.getMessage().contains("foreign key")) {
+                message = "Cannot complete operation due to related records. Please check your selections.";
+            } else if (ex.getMessage().contains("not null")) {
+                message = "Required field is missing. Please fill in all required fields.";
+            }
+        }
+
+        ApiResponse<Object> errorResponse = new ApiResponse<>(false, message, null);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
