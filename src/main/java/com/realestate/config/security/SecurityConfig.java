@@ -112,9 +112,9 @@ public class SecurityConfig {
         // Development: Vite (5173) and React dev server (3000)
         configuration.setAllowedOrigins(List.of(
                 // Production
-                "https://ambikarealstate.com",
-                "https://www.ambikarealstate.com",
-                "https://api.ambikarealstate.com",
+                "https://ambikarealestate.com",
+                "https://www.ambikarealestate.com",
+                "https://api.ambikarealestate.com",
                 // Development
                 "http://localhost:3000",
                 "http://localhost:5173",
