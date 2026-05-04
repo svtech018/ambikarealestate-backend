@@ -21,9 +21,9 @@ public class SecurityProperties {
 
     @Data
     public static class Cors {
-        private String allowedOrigins = "http://localhost:3000,http://localhost:4200";
-        private String allowedMethods = "GET,POST,PUT,DELETE,OPTIONS";
-        private String allowedHeaders = "*";
+        private String allowedOrigins = "http://localhost:3000,http://localhost:5173,http://localhost:3001";
+        private String allowedMethods = "GET,POST,PUT,DELETE,OPTIONS,PATCH";
+        private String allowedHeaders = "Content-Type,Authorization,X-Admin-Token,Accept,Origin";
         private boolean allowCredentials = true;
     }
 }

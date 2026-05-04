@@ -1,6 +1,7 @@
 package com.realestate.config.security;
 
 import com.realestate.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -33,6 +34,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${app.security.cors.allowed-origins}")
+    private String allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationEntryPoint authenticationEntryPoint,
             @Lazy JwtAuthenticationFilter jwtAuthenticationFilter) {
@@ -109,20 +113,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Production domains: Main domain + www variant
-        // Development: Vite (5173) and React dev server (3000)
-        configuration.setAllowedOrigins(List.of(
-                // Production
-                "https://ambikarealestate.com",
-                "https://www.ambikarealestate.com",
-                "https://api.ambikarealestate.com",
-                // Development
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "http://localhost:3001",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:3001"));
+        // Parse allowed origins from environment variable
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration

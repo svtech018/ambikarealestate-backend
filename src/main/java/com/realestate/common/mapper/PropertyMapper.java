@@ -21,7 +21,7 @@ public class PropertyMapper {
         String apiUrl = System.getenv("API_URL");
         if (apiUrl == null || apiUrl.isBlank()) {
             // Production default - adjust if using different domain
-            apiUrl = "https://api.ambikarealestate.com";
+            apiUrl = "https://ambikarealestate.com";
         }
         // Remove trailing slash if present
         if (apiUrl.endsWith("/")) {
