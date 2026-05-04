@@ -68,7 +68,7 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     @Override
     @Transactional(readOnly = true)
     public AdminPropertyDTO getPropertyById(Long propertyId) {
-        Property property = propertyRepository.findById(propertyId)
+        Property property = propertyRepository.findByIdWithImages(propertyId)
                 .orElseThrow(() -> new RuntimeException("Property not found with ID: " + propertyId));
         return propertyMapper.toAdminDTO(property);
     }

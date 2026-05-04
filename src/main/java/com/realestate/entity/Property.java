@@ -22,6 +22,7 @@ import java.util.Objects;
         @Index(name = "idx_property_city", columnList = "city"),
         @Index(name = "idx_property_state", columnList = "state")
 })
+@NamedEntityGraph(name = "Property.withImages", attributeNodes = @NamedAttributeNode("propertyImages"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

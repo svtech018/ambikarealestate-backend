@@ -58,7 +58,7 @@ public class UserPropertyServiceImpl implements UserPropertyService {
 
     @Override
     public UserPropertyDTO getPropertyById(Long propertyId) {
-        Property property = propertyRepository.findById(propertyId)
+        Property property = propertyRepository.findByIdWithImages(propertyId)
                 .orElseThrow(() -> new RuntimeException("Property not found with ID: " + propertyId));
 
         if (!PropertyStatus.ACTIVE.equals(property.getStatus())) {
