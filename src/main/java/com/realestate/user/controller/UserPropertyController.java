@@ -247,20 +247,35 @@ public class UserPropertyController {
     public ResponseEntity<byte[]> getPropertyImage(
             @Parameter(description = "Property image ID") @PathVariable Long imageId) {
 
-        PropertyImage image = userPropertyService.getPropertyImageById(imageId);
-        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
         try {
-            mediaType = MediaType.parseMediaType(image.getContentType());
-        } catch (Exception ignored) {
-        }
+            PropertyImage image = userPropertyService.getPropertyImageById(imageId);
 
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic())
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + (image.getFileName() != null ? image.getFileName() : "property-image")
-                                + "\"")
-                .body(image.getImageData());
+            if (image == null || image.getImageData() == null || image.getImageData().length == 0) {
+                return ResponseEntity.notFound().build();
+            }
+
+            MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+            try {
+                mediaType = MediaType.parseMediaType(image.getContentType());
+            } catch (Exception ignored) {
+                // Use default media type if parsing fails
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic())
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\""
+                                    + (image.getFileName() != null ? image.getFileName() : "property-image")
+                                    + "\"")
+                    .body(image.getImageData());
+        } catch (RuntimeException e) {
+            // Image not found or other runtime error
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // Other errors
+            return ResponseEntity.status(500).build();
+        }
     }
 
     /**
@@ -368,7 +383,7 @@ public class UserPropertyController {
         // Parse property type
         if (propertyTypeValue != null && !propertyTypeValue.trim().isEmpty()) {
             try {
-            builder.propertyType(PropertyType.fromString(propertyTypeValue));
+                builder.propertyType(PropertyType.fromString(propertyTypeValue));
             } catch (IllegalArgumentException e) {
                 throw new PropertyValidationException(
                         "Invalid property type. Valid values are: " +
