@@ -22,7 +22,6 @@ import java.util.Objects;
         @Index(name = "idx_property_city", columnList = "city"),
         @Index(name = "idx_property_state", columnList = "state")
 })
-@NamedEntityGraph(name = "Property.withImages", attributeNodes = @NamedAttributeNode("propertyImages"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -100,6 +99,7 @@ public class Property extends BaseEntity {
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortOrder ASC, id ASC")
+    @org.hibernate.annotations.BatchSize(size = 20)
     @Builder.Default
     private List<PropertyImage> propertyImages = new ArrayList<>();
 

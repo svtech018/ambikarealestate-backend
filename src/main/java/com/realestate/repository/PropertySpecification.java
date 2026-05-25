@@ -18,14 +18,10 @@ public class PropertySpecification {
 
     public static Specification<Property> withCriteria(PropertySearchCriteria criteria) {
         return (root, query, criteriaBuilder) -> {
-            // Eager load property images using LEFT JOIN FETCH
-            root.fetch("propertyImages", JoinType.LEFT);
-
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("status"), PropertyStatus.ACTIVE));
 
             if (criteria == null) {
-                query.distinct(true);
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
             }
 
@@ -35,8 +31,6 @@ public class PropertySpecification {
             addAreaAndSpaceFilters(predicates, criteriaBuilder, root, criteria);
             addDateAndFeatureFilters(predicates, criteriaBuilder, root, criteria);
             addTextSearchFilter(predicates, criteriaBuilder, root, criteria);
-
-            query.distinct(true);
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
@@ -133,16 +127,12 @@ public class PropertySpecification {
 
     public static Specification<Property> isActive() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("propertyImages", JoinType.LEFT);
-            query.distinct(true);
             return criteriaBuilder.equal(root.get("status"), PropertyStatus.ACTIVE);
         };
     }
 
     public static Specification<Property> isFeatured() {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("propertyImages", JoinType.LEFT);
-            query.distinct(true);
             return criteriaBuilder.and(
                     criteriaBuilder.equal(root.get("status"), PropertyStatus.ACTIVE),
                     criteriaBuilder.equal(root.get("featured"), true));
@@ -151,8 +141,6 @@ public class PropertySpecification {
 
     public static Specification<Property> hasPropertyType(PropertyType propertyType) {
         return (root, query, criteriaBuilder) -> {
-            root.fetch("propertyImages", JoinType.LEFT);
-            query.distinct(true);
             if (propertyType == null) {
                 return criteriaBuilder.equal(root.get("status"), PropertyStatus.ACTIVE);
             }
