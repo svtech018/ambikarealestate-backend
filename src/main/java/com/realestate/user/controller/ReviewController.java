@@ -22,6 +22,17 @@ public class ReviewController {
         this.reviewRepository = reviewRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<ReviewDTO>>> getAllReviews() {
+        List<ReviewDTO> reviews = reviewRepository
+                .findAll()
+                .stream()
+                .filter(r -> Boolean.TRUE.equals(r.getActive()))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(new ApiResponse<>(true, "All reviews retrieved", reviews));
+    }
+
     @GetMapping("/homepage")
     public ResponseEntity<ApiResponse<List<ReviewDTO>>> getHomepageReviews() {
         List<ReviewDTO> reviews = reviewRepository
