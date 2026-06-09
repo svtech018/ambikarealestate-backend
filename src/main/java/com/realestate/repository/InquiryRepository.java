@@ -32,6 +32,10 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
 
     long countByProperty_Id(Long propertyId);
 
+    // Delete inquiries belonging to a specific property (used when removing a
+    // property)
+    void deleteByProperty_Id(Long propertyId);
+
     @Query("SELECT i FROM Inquiry i WHERE i.property.id = :propertyId ORDER BY i.submittedAt DESC")
     Page<Inquiry> findRecentInquiriesForProperty(@Param("propertyId") Long propertyId, Pageable pageable);
 }

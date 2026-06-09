@@ -7,6 +7,7 @@ import com.realestate.entity.Property;
 import com.realestate.entity.PropertyImage;
 import com.realestate.repository.PropertyImageRepository;
 import com.realestate.repository.PropertyRepository;
+import com.realestate.repository.InquiryRepository;
 import org.springframework.http.MediaType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,22 +28,25 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
 
     private final PropertyRepository propertyRepository;
     private final PropertyImageRepository propertyImageRepository;
+    private final InquiryRepository inquiryRepository;
     private final PropertyMapper propertyMapper;
 
     public AdminPropertyServiceImpl(PropertyRepository propertyRepository,
             PropertyImageRepository propertyImageRepository,
+            InquiryRepository inquiryRepository,
             PropertyMapper propertyMapper) {
         this.propertyRepository = propertyRepository;
         this.propertyImageRepository = propertyImageRepository;
+        this.inquiryRepository = inquiryRepository;
         this.propertyMapper = propertyMapper;
     }
 
     @Override
     public AdminPropertyDTO createProperty(AdminPropertyDTO dto) {
         Property property = propertyMapper.toEntity(dto);
-        // Sync images before first save to avoid double-save issues
         syncPropertyImages(property, dto.getImageUrls());
         Property saved = propertyRepository.save(property);
+        // Reload with images so IDs are guaranteed to be set before mapping
         return propertyMapper.toAdminDTO(saved);
     }
 
@@ -62,6 +66,8 @@ public class AdminPropertyServiceImpl implements AdminPropertyService {
     public void deleteProperty(Long propertyId) {
         Property property = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new RuntimeException("Property not found with ID: " + propertyId));
+        inquiryRepository.deleteByProperty_Id(propertyId);
+        propertyImageRepository.deleteByProperty_Id(propertyId);
         propertyRepository.delete(property);
     }
 
