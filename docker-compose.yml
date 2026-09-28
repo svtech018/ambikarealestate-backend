@@ -4,7 +4,7 @@ version: "3.9"
 # api    -> Spring Boot backend (built from local Dockerfile)
 # postgres -> Postgres matching the version dumped from Railway (assumption: 15,
 #             confirm with `SELECT version();` on Railway before first migration)
-# caddy  -> automatic HTTPS reverse proxy for api.prerithgroups.in
+# caddy  -> automatic HTTPS reverse proxy for api.ambikarealestate.com
 #
 # Assumption: no other service needs to reach Postgres from outside the host,
 # so it has no published port; only the docker network exposes 5432.
