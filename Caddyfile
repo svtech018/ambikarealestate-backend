@@ -1,0 +1,19 @@
+api.prerithgroups.in {
+	encode gzip
+
+	# Reverse proxy to the Spring Boot container on the internal docker network
+	reverse_proxy api:8080 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	# Automatic HTTPS (Let's Encrypt) is enabled by default for any site
+	# block with a public hostname; no extra directives needed.
+
+	log {
+		output file /data/access.log {
+			roll_size 10mb
+			roll_keep 7
+		}
+	}
+}
